@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <title>1.3.1 確認訂單自動化 — 系統總覽</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Microsoft JhengHei', 'Noto Sans TC', sans-serif; background: #f8fafc; color: #1e293b; }
+
+    .cover { background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: #fff; padding: 64px 32px; text-align: center; }
+    .cover h1 { font-size: 36px; font-weight: 700; margin-bottom: 12px; }
+    .cover p { font-size: 16px; color: #94a3b8; max-width: 600px; margin: 0 auto; line-height: 1.8; }
+    .cover .meta { margin-top: 20px; font-size: 13px; color: #64748b; }
+
+    .page { max-width: 1000px; margin: 0 auto; padding: 40px 24px; }
+
+    .section { margin-bottom: 48px; }
+    .section h2 { font-size: 22px; font-weight: 700; color: #1e293b; margin-bottom: 8px; padding-bottom: 10px; border-bottom: 3px solid #3b82f6; display: inline-block; }
+    .section h3 { font-size: 17px; font-weight: 600; color: #475569; margin: 24px 0 12px; }
+    .section p, .section li { font-size: 14px; line-height: 1.8; color: #475569; }
+    .section ul { padding-left: 20px; margin: 8px 0; }
+
+    .mermaid { margin: 24px 0; overflow-x: auto; }
+
+    .arch-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 20px 0; }
+    .arch-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 20px; }
+    .arch-card .icon { font-size: 28px; margin-bottom: 8px; }
+    .arch-card h4 { font-size: 15px; font-weight: 600; color: #1e293b; margin-bottom: 6px; }
+    .arch-card p { font-size: 13px; color: #64748b; }
+    .arch-card .tech { font-size: 11px; color: #94a3b8; margin-top: 8px; padding-top: 8px; border-top: 1px solid #f1f5f9; }
+
+    .file-tree { background: #1e293b; color: #e2e8f0; border-radius: 10px; padding: 20px 24px; font-family: 'Cascadia Code', 'Consolas', monospace; font-size: 13px; line-height: 2; }
+    .file-tree .dir { color: #60a5fa; }
+    .file-tree .file { color: #94a3b8; }
+    .file-tree .desc { color: #475569; font-style: italic; }
+
+    table { width: 100%; border-collapse: collapse; margin: 16px 0; background: #fff; border-radius: 8px; overflow: hidden; border: 1px solid #e2e8f0; }
+    th, td { padding: 12px 16px; text-align: left; font-size: 13px; border-bottom: 1px solid #f1f5f9; }
+    th { background: #f8fafc; color: #64748b; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    .badge { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+    .b-done { background: #dcfce7; color: #166534; }
+    .b-part { background: #fef9c3; color: #854d0e; }
+    .b-todo { background: #fee2e2; color: #991b1b; }
+    .b-blue { background: #dbeafe; color: #1e40af; }
+
+    .flow-legend { display: flex; gap: 20px; flex-wrap: wrap; margin: 12px 0 20px; font-size: 13px; color: #64748b; }
+    .flow-legend span { display: inline-flex; align-items: center; gap: 6px; }
+    .flow-legend .dot { width: 12px; height: 12px; border-radius: 3px; }
+
+    .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 20px 0; }
+    .kpi { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 20px; text-align: center; }
+    .kpi .val { font-size: 28px; font-weight: 700; }
+    .kpi .label { font-size: 12px; color: #94a3b8; margin-top: 4px; }
+    .kpi-blue .val { color: #3b82f6; }
+    .kpi-green .val { color: #22c55e; }
+    .kpi-amber .val { color: #f59e0b; }
+    .kpi-red .val { color: #ef4444; }
+
+    .step-list { counter-reset: step; }
+    .step-item { display: flex; gap: 16px; margin-bottom: 20px; }
+    .step-num { flex-shrink: 0; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; color: #fff; counter-increment: step; }
+    .step-num.s-done { background: #22c55e; }
+    .step-num.s-part { background: #f59e0b; }
+    .step-num.s-todo { background: #ef4444; }
+    .step-content h4 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+    .step-content p { font-size: 13px; color: #64748b; line-height: 1.6; }
+
+    .footer { text-align: center; padding: 40px; color: #94a3b8; font-size: 12px; border-top: 1px solid #e2e8f0; margin-top: 40px; }
+  </style>
+</head>
+<body>
+
+<!-- Cover -->
+<div class="cover">
+  <h1>1.3.1 確認訂單自動化系統</h1>
+  <p>自動驗證 Odoo 訂單、AI 辨識寄件資訊、一鍵寫入 Google Sheets，從人工 60 分鐘縮短至 5 分鐘</p>
+  <div class="meta">Lotri Inc. | 建立日期：2026/04/17 | 版本 1.0</div>
+</div>
+
+<div class="page">
+
+  <!-- 1. 系統架構 -->
+  <div class="section">
+    <h2>系統架構</h2>
+    <div class="arch-grid">
+      <div class="arch-card">
+        <div class="icon">🌐</div>
+        <h4>Odoo 自動化</h4>
+        <p>自動登入、篩選訂單、逐筆驗證、補標籤備註、點擊確認、自動翻頁</p>
+        <div class="tech">Playwright (Chromium)</div>
+      </div>
+      <div class="arch-card">
+        <div class="icon">🤖</div>
+        <h4>AI 辨識引擎</h4>
+        <p>從訊息截圖中辨識店號、地址、郵遞區號，雙引擎備援確保可用性</p>
+        <div class="tech">Gemini 2.5 Flash + OpenAI GPT-4o-mini</div>
+      </div>
+      <div class="arch-card">
+        <div class="icon">📊</div>
+        <h4>Google Sheets 寫入</h4>
+        <p>透過 API 直接寫入寄件資訊，自動防重複、自動插入日期行</p>
+        <div class="tech">Google Sheets API v4 (OAuth2)</div>
+      </div>
+      <div class="arch-card">
+        <div class="icon">🖥️</div>
+        <h4>控制面板</h4>
+        <p>Web 介面一鍵執行，即時日誌串流、異常面板、統計數據</p>
+        <div class="tech">Node.js HTTP + SSE</div>
+      </div>
+      <div class="arch-card">
+        <div class="icon">📋</div>
+        <h4>異常報告</h4>
+        <p>自動記錄所有異常訂單與錯誤原因，匯出 JSON 供後續追蹤</p>
+        <div class="tech">order_result.json</div>
+      </div>
+      <div class="arch-card">
+        <div class="icon">🔒</div>
+        <h4>安全性</h4>
+        <p>帳密與 API Key 存於 .env，Google 授權使用 OAuth2 Token</p>
+        <div class="tech">.env + token.json</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. 核心流程圖 -->
+  <div class="section">
+    <h2>核心流程圖</h2>
+    <div class="flow-legend">
+      <span><span class="dot" style="background:#22c55e"></span> 已完成</span>
+      <span><span class="dot" style="background:#f59e0b"></span> 部分完成</span>
+      <span><span class="dot" style="background:#ef4444"></span> 異常路徑</span>
+      <span><span class="dot" style="background:#3b82f6"></span> 起止點</span>
+    </div>
+    <div class="mermaid">
+flowchart TD
+    START([啟動系統]) --> LOGIN["自動登入 Odoo"]
+    LOGIN --> NAV["前往銷售頁面\n套用「確認訂單用」篩選"]
+    NAV --> SCAN["掃描列表\n找出所有非今日訂單"]
+    SCAN --> CLICK["點擊第一筆非今日訂單"]
+    CLICK --> LOOP
+
+    subgraph LOOP["逐筆訂單處理迴圈"]
+      direction TB
+      V1{"① 訊息是否存在？"}
+      V1 -- 有 --> V2{"② 金額核對\n訊息 NT.xxx = 報價單總計？"}
+      V1 -- 無 --> E1["記錄異常"]
+
+      V2 -- 一致 --> V3{"③ 產品核對\n料號、色號、數量"}
+      V2 -- 不一致 --> E2["記錄異常"]
+
+      V3 -- 正確 --> V4{"④ 備註檢查"}
+      V3 -- 不正確 --> E3["記錄異常"]
+
+      V4 -- 無異常 --> V5["⑤ 判斷寄件方式"]
+      V4 -- 有異常 --> E4["記錄異常"]
+
+      V5 --> SHIP{"寄件方式"}
+      SHIP --> S1["7-11 取貨"]
+      SHIP --> S2["全家 FM 取貨"]
+      SHIP --> S3["宅配 HOME"]
+
+      S1 --> AI["AI 辨識\n截圖讀取店號/地址"]
+      S2 --> AI
+      S3 --> AI
+
+      AI --> CHECK{"資訊取得成功？"}
+      CHECK -- 成功 --> TAG["補上標籤\n7-11 / FM / HOME / 外島"]
+      CHECK -- 失敗 --> E5["記錄異常"]
+
+      TAG --> NOTE["補上備註\n7-11 / FM / H"]
+      NOTE --> WRITE["寫入 Google Sheets\n自動防重複"]
+      WRITE --> CONFIRM["點擊「確認」訂單"]
+
+      E1 --> NEXT
+      E2 --> NEXT
+      E3 --> NEXT
+      E4 --> NEXT
+      E5 --> NEXT
+      CONFIRM --> NEXT["點擊 > 下一筆"]
+    end
+
+    NEXT --> DONE{"所有訂單\n處理完畢？"}
+    DONE -- 否 --> V1
+    DONE -- 是 --> REPORT
+
+    REPORT["產生處理報告\norder_result.json"]
+    REPORT --> FIN([完成])
+
+    style START fill:#dbeafe,stroke:#3b82f6,color:#1e40af
+    style FIN fill:#dbeafe,stroke:#3b82f6,color:#1e40af
+    style LOGIN fill:#dcfce7,stroke:#22c55e
+    style NAV fill:#dcfce7,stroke:#22c55e
+    style SCAN fill:#dcfce7,stroke:#22c55e
+    style CLICK fill:#dcfce7,stroke:#22c55e
+    style V1 fill:#dcfce7,stroke:#22c55e
+    style V2 fill:#dcfce7,stroke:#22c55e
+    style V3 fill:#dcfce7,stroke:#22c55e
+    style V5 fill:#dcfce7,stroke:#22c55e
+    style S1 fill:#dcfce7,stroke:#22c55e
+    style S2 fill:#dcfce7,stroke:#22c55e
+    style S3 fill:#dcfce7,stroke:#22c55e
+    style TAG fill:#dcfce7,stroke:#22c55e
+    style NOTE fill:#dcfce7,stroke:#22c55e
+    style CONFIRM fill:#dcfce7,stroke:#22c55e
+    style NEXT fill:#dcfce7,stroke:#22c55e
+    style DONE fill:#dcfce7,stroke:#22c55e
+    style REPORT fill:#dcfce7,stroke:#22c55e
+    style AI fill:#dcfce7,stroke:#22c55e
+    style CHECK fill:#dcfce7,stroke:#22c55e
+    style WRITE fill:#dcfce7,stroke:#22c55e
+    style SHIP fill:#dcfce7,stroke:#22c55e
+    style V4 fill:#fef9c3,stroke:#f59e0b
+    style E1 fill:#fee2e2,stroke:#ef4444,color:#991b1b
+    style E2 fill:#fee2e2,stroke:#ef4444,color:#991b1b
+    style E3 fill:#fee2e2,stroke:#ef4444,color:#991b1b
+    style E4 fill:#fee2e2,stroke:#ef4444,color:#991b1b
+    style E5 fill:#fee2e2,stroke:#ef4444,color:#991b1b
+    </div>
+  </div>
+
+  <!-- 3. AI 辨識流程 -->
+  <div class="section">
+    <h2>AI 辨識流程</h2>
+    <div class="mermaid">
+flowchart LR
+    MSG["訂單訊息區域"] --> TXT{"文字中\n有店號/地址？"}
+    TXT -- 有 --> PARSE["直接解析文字"]
+    TXT -- 無 --> SS["截取訊息區域截圖"]
+    SS --> G{"Gemini\n2.5 Flash"}
+    G -- 成功 --> RESULT["取得店號/地址"]
+    G -- "額度不足\n或伺服器忙碌" --> O{"OpenAI\nGPT-4o-mini"}
+    O -- 成功 --> RESULT
+    O -- 失敗 --> FAIL["標記為異常\n等待人工處理"]
+    PARSE --> RESULT
+
+    style MSG fill:#e0e7ff,stroke:#6366f1
+    style SS fill:#fef3c7,stroke:#f59e0b
+    style G fill:#dcfce7,stroke:#22c55e
+    style O fill:#dbeafe,stroke:#3b82f6
+    style RESULT fill:#dcfce7,stroke:#22c55e
+    style FAIL fill:#fee2e2,stroke:#ef4444
+    </div>
+  </div>
+
+  <!-- 4. Google Sheets 寫入流程 -->
+  <div class="section">
+    <h2>Google Sheets 寫入流程</h2>
+    <div class="mermaid">
+flowchart LR
+    DATA["寄件資料"] --> DUP{"檢查訂單編號\n是否已存在？"}
+    DUP -- 已存在 --> SKIP["跳過\n避免重複"]
+    DUP -- 不存在 --> ROUTE{"寄件方式"}
+    ROUTE --> W1["7-11 工作表\n第2行插入"]
+    ROUTE --> W2["FM 工作表\n第2行插入"]
+    ROUTE --> W3["Home 工作表\n第3行插入"]
+    W1 --> DATE["插入當日日期行"]
+    W2 --> DATE
+    W3 --> DATE
+    DATE --> DONE2["寫入完成"]
+
+    style DATA fill:#e0e7ff,stroke:#6366f1
+    style DUP fill:#fef9c3,stroke:#f59e0b
+    style SKIP fill:#f1f5f9,stroke:#94a3b8,color:#94a3b8
+    style W1 fill:#dcfce7,stroke:#22c55e
+    style W2 fill:#dcfce7,stroke:#22c55e
+    style W3 fill:#dcfce7,stroke:#22c55e
+    style DONE2 fill:#dcfce7,stroke:#22c55e
+    </div>
+
+    <h3>各工作表欄位對應</h3>
+    <table>
+      <tr><th>工作表</th><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th><th>F</th><th>G</th><th>H</th></tr>
+      <tr><td><b>7-11</b></td><td>取件人名</td><td>電話</td><td>店號</td><td>常溫</td><td>訂單編號</td><td>金額</td><td>0</td><td>日期</td></tr>
+      <tr><td><b>FM</b></td><td>取件人名</td><td>電話</td><td>店號</td><td>金額</td><td>0</td><td>訂單編號</td><td>—</td><td>—</td></tr>
+      <tr><td><b>Home</b></td><td>訂單編號</td><td>姓名</td><td>手機</td><td>郵遞區號</td><td>地址</td><td>金額</td><td>—</td><td>—</td></tr>
+    </table>
+  </div>
+
+  <!-- 5. 驗證步驟明細 -->
+  <div class="section">
+    <h2>五步驗證流程</h2>
+    <div class="step-list">
+      <div class="step-item">
+        <div class="step-num s-done">1</div>
+        <div class="step-content">
+          <h4>訊息存在檢查</h4>
+          <p>確認訂單的 Message 區域是否有客戶訊息（包含 NT 金額的文字訊息）。沒有訊息代表訂單資訊不完整，標記為異常。</p>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-num s-done">2</div>
+        <div class="step-content">
+          <h4>金額核對</h4>
+          <p>比對訊息中的 <code>NT.xxx</code> 金額與報價單右下角 <code>總計: NT$</code> 是否一致。不一致代表訂單金額有誤。</p>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-num s-done">3</div>
+        <div class="step-content">
+          <h4>產品核對</h4>
+          <p>比對訊息中的產品料號、色號（#）、數量，與訂單明細中的產品資訊是否一致。支援通路前綴容許（如訊息中 <code>FMSH725</code> 對應訂單 <code>SH725</code>），前導零容許（<code>#01</code> = <code>#1</code>）。</p>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-num s-part">4</div>
+        <div class="step-content">
+          <h4>備註檢查</h4>
+          <p>確認訂單明細左下方是否有異常備註。目前部分完成，需進一步確認備註欄位的精確定位。</p>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-num s-done">5</div>
+        <div class="step-content">
+          <h4>寄件方式判斷 + 資訊收集</h4>
+          <p>根據訊息關鍵字判斷寄件方式（7-11 / FM / HOME），透過 AI 截圖辨識讀取店號或地址。宅配訂單額外判斷外島地區、查詢郵遞區號。自動補上對應的標籤和備註。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. 最近執行結果 -->
+  <div class="section">
+    <h2>最近執行結果（2026/04/17）</h2>
+    <div class="kpi-row">
+      <div class="kpi kpi-blue"><div class="val">21</div><div class="label">處理總數</div></div>
+      <div class="kpi kpi-green"><div class="val">11</div><div class="label">自動確認成功</div></div>
+      <div class="kpi kpi-amber"><div class="val">7</div><div class="label">資訊不足</div></div>
+      <div class="kpi kpi-red"><div class="val">3</div><div class="label">訂單本身異常</div></div>
+    </div>
+    <table>
+      <tr><th>異常類型</th><th>筆數</th><th>說明</th><th>處理方式</th></tr>
+      <tr><td>Message 無訊息</td><td>3</td><td>訂單缺少客戶訊息</td><td>需人工聯繫客戶補充</td></tr>
+      <tr><td>產品不一致</td><td>3</td><td>訊息與訂單明細的產品資訊不符</td><td>需人工核對修正</td></tr>
+      <tr><td>無法取得店號/地址</td><td>4</td><td>AI 無法從截圖中辨識</td><td>可重試或人工查看</td></tr>
+    </table>
+  </div>
+
+  <!-- 7. 檔案結構 -->
+  <div class="section">
+    <h2>專案檔案結構</h2>
+    <div class="file-tree">
+<span class="dir">odoo確認訂單/</span>
+├── <span class="file">odoo.js</span>              <span class="desc">— 核心自動化腳本（Odoo + AI + Sheets）</span>
+├── <span class="file">server.js</span>            <span class="desc">— 控制面板後端（HTTP + SSE）</span>
+├── <span class="file">dashboard.html</span>       <span class="desc">— 控制面板前端介面</span>
+├── <span class="file">auth-google.js</span>       <span class="desc">— Google OAuth2 授權工具</span>
+├── <span class="file">.env</span>                 <span class="desc">— 環境變數（帳密、API Key）</span>
+├── <span class="file">token.json</span>           <span class="desc">— Google OAuth2 Token</span>
+├── <span class="file">client_secret_*.json</span> <span class="desc">— Google OAuth2 Credentials</span>
+├── <span class="file">order_result.json</span>    <span class="desc">— 最近一次執行結果</span>
+├── <span class="file">overview.html</span>        <span class="desc">— 本文件（系統總覽）</span>
+├── <span class="file">flowchart.html</span>       <span class="desc">— 流程圖（老闆版）</span>
+└── <span class="file">package.json</span>         <span class="desc">— Node.js 專案設定</span>
+    </div>
+  </div>
+
+  <!-- 8. 使用方式 -->
+  <div class="section">
+    <h2>使用方式</h2>
+    <h3>方法一：控制面板（推薦）</h3>
+    <div class="mermaid">
+flowchart LR
+    A["執行 node server.js"] --> B["瀏覽器開啟\nlocalhost:3001"] --> C["點擊「一鍵執行」"] --> D["即時查看結果"]
+    style A fill:#dbeafe,stroke:#3b82f6
+    style B fill:#dbeafe,stroke:#3b82f6
+    style C fill:#dcfce7,stroke:#22c55e
+    style D fill:#dcfce7,stroke:#22c55e
+    </div>
+    <h3>方法二：命令列直接執行</h3>
+    <div class="file-tree" style="line-height: 2.5;">
+<span style="color:#4ade80">$</span> node odoo.js          <span class="desc">— 執行完整確認訂單流程</span>
+<span style="color:#4ade80">$</span> node auth-google.js   <span class="desc">— 首次授權 Google（僅需一次）</span>
+<span style="color:#4ade80">$</span> node server.js        <span class="desc">— 啟動控制面板</span>
+    </div>
+  </div>
+
+  <!-- 9. 效益 -->
+  <div class="section">
+    <h2>自動化效益</h2>
+    <table>
+      <tr><th>指標</th><th>人工作業</th><th>自動化後</th><th>改善幅度</th></tr>
+      <tr><td>單筆訂單處理時間</td><td>3-5 分鐘</td><td>~15 秒</td><td style="color:#22c55e; font-weight:700">95%</td></tr>
+      <tr><td>20 筆訂單總耗時</td><td>60-100 分鐘</td><td>~5 分鐘</td><td style="color:#22c55e; font-weight:700">92%</td></tr>
+      <tr><td>金額核對準確率</td><td>人工可能遺漏</td><td>100% 逐筆核對</td><td style="color:#22c55e; font-weight:700">100%</td></tr>
+      <tr><td>產品核對準確率</td><td>人工可能遺漏</td><td>100% 逐項比對</td><td style="color:#22c55e; font-weight:700">100%</td></tr>
+      <tr><td>Google Sheets 填表</td><td>手動逐欄輸入</td><td>API 自動寫入+防重複</td><td style="color:#22c55e; font-weight:700">100%</td></tr>
+      <tr><td>異常追蹤</td><td>手動記錄，易遺漏</td><td>自動產生完整報告</td><td style="color:#22c55e; font-weight:700">—</td></tr>
+    </table>
+  </div>
+
+</div>
+
+<div class="footer">
+  1.3.1 確認訂單自動化系統 — Lotri Inc. — 2026/04/17
+</div>
+
+<script>
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'default',
+    flowchart: { curve: 'basis', htmlLabels: true, nodeSpacing: 25, rankSpacing: 35 },
+  });
+</script>
+</body>
+</html>
